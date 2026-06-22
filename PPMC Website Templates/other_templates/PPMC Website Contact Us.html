@@ -1,0 +1,236 @@
+<style>
+  /* ── Page styles ── */
+  .cu-wrap { padding: 0 0 2rem 0; margin: 0; font-family: sans-serif; }
+  .cu-contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .cu-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: border-color 0.15s;
+  }
+  .cu-card:hover { border-color: #b0b8c1; }
+  .cu-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cu-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: #1d6fb8;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .cu-label {
+    font-size: 11px;
+    color: #6b7280;
+    margin: 0 0 3px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .cu-value { font-size: 14px; color: #111827; margin: 0; line-height: 1.5; }
+  .cu-value a { color: #1d6fb8; text-decoration: none; }
+  .cu-value a:hover { text-decoration: underline; }
+  .cu-divider { border: none; border-top: 1px solid #e5e7eb; margin: 0 0 1.25rem; }
+
+  /* Information Request card */
+  .cu-info-card {
+    background: #f0f7ff;
+    border: 1px solid #c7dff7;
+    border-left: 3px solid #1d6fb8;
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .cu-info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #dbeafe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cu-info-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: #1d6fb8;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .cu-info-title { font-size: 14px; font-weight: 600; color: #111827; margin: 0 0 6px; }
+  .cu-info-body { font-size: 13px; color: #374151; margin: 0 0 6px; line-height: 1.6; }
+  .cu-info-body a { color: #1d6fb8; text-decoration: none; }
+  .cu-info-body a:hover { text-decoration: underline; }
+
+  /* ── Hide styled block in footer, show plain instead ── */
+  footer .cu-wrap,
+  .footer .cu-wrap,
+  #footer .cu-wrap,
+  [class*="footer"] .cu-wrap,
+  .widget .cu-wrap,
+  [class*="widget"] .cu-wrap { display: none !important; }
+
+  .footer-plain { display: none; }
+  footer .footer-plain,
+  .footer .footer-plain,
+  #footer .footer-plain,
+  [class*="footer"] .footer-plain,
+  .widget .footer-plain,
+  [class*="widget"] .footer-plain { display: block !important; }
+
+  /* ── Responsive Breakpoints ── */
+  @media (max-width: 1024px) {
+    .cu-contact-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .cu-contact-grid { grid-template-columns: 1fr 1fr; }
+    .cu-card { padding: 0.85rem 1rem; }
+    .cu-info-card { padding: 0.85rem 1rem; }
+  }
+
+  @media (max-width: 600px) {
+    .cu-contact-grid { grid-template-columns: 1fr; }
+    .cu-card { padding: 0.75rem 0.9rem; }
+    .cu-info-card { padding: 0.75rem 0.9rem; }
+    .cu-wrap { padding: 0 0 1.5rem 0; }
+  }
+
+  @media (max-width: 380px) {
+    .cu-contact-grid { grid-template-columns: 1fr; }
+    .cu-label { font-size: 10px; }
+    .cu-value { font-size: 13px; }
+    .cu-info-title { font-size: 13px; }
+    .cu-info-body { font-size: 12px; }
+    .cu-icon { width: 30px; height: 30px; }
+    .cu-info-icon { width: 30px; height: 30px; }
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var checkEl = document.querySelector(".cu-wrap");
+    if (!checkEl) return;
+    var parent = checkEl.parentElement;
+    var isInFooter = false;
+    while (parent) {
+      var tag = parent.tagName ? parent.tagName.toLowerCase() : "";
+      var cls = parent.className ? parent.className.toLowerCase() : "";
+      var id  = parent.id ? parent.id.toLowerCase() : "";
+      if (tag === "footer" || cls.indexOf("footer") !== -1 || id.indexOf("footer") !== -1 || cls.indexOf("widget") !== -1) {
+        isInFooter = true;
+        break;
+      }
+      parent = parent.parentElement;
+    }
+    if (isInFooter) {
+      document.querySelectorAll(".cu-wrap").forEach(function(el) { el.style.display = "none"; });
+      document.querySelectorAll(".footer-plain").forEach(function(el) { el.style.display = "block"; });
+    }
+  });
+</script>
+
+<!-- ✅ STYLED BLOCK — Contact Us page -->
+<div class="cu-wrap">
+
+  <div class="cu-contact-grid">
+
+    <div class="cu-card">
+      <div class="cu-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+      </div>
+      <div>
+        <p class="cu-label">Email</p>
+        <p class="cu-value"><a href="mailto:info@ppmc.gov.pk">info@ppmc.gov.pk</a></p>
+      </div>
+    </div>
+
+    <div class="cu-card">
+      <div class="cu-icon">
+        <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2C8.955 21 3 15.046 3 7a2 2 0 012-2z"/></svg>
+      </div>
+      <div>
+        <p class="cu-label">Contact</p>
+        <p class="cu-value">
+          <a href="tel:051-9211301">051-9211301</a>,
+          <a href="tel:051-9211302">051-9211302</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="cu-card">
+      <div class="cu-icon">
+        <svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+      </div>
+      <div>
+        <p class="cu-label">Fax</p>
+        <p class="cu-value"><a href="tel:051-2726915">051-2726915</a></p>
+      </div>
+    </div>
+
+    <div class="cu-card">
+      <div class="cu-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      </div>
+      <div>
+        <p class="cu-label">Address</p>
+        <p class="cu-value">
+          <a href="https://maps.app.goo.gl/vi5g1yBcWVVmRBUE7" target="_blank">
+            Office #112, Evacuee Trust Complex,<br>Agha Khan Road, Islamabad
+          </a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="cu-divider" />
+
+  <div class="cu-info-card">
+    <div class="cu-info-icon">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg>
+    </div>
+    <div>
+      <p class="cu-info-title">Information Request</p>
+      <p class="cu-info-body">
+        For information requests under the Right of Access to Information Act 2017,
+        citizens may write an email to <a href="mailto:rti@ppmc.gov.pk">rti@ppmc.gov.pk</a>
+      </p>
+      <p class="cu-info-body"><strong>Designated Official:</strong> Mr. Waleed Bin Usman, Team Lead (Legal)</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ✅ PLAIN BLOCK — Footer only (original style) -->
+<div class="footer-plain">
+  <ul>
+    <li><strong>Email:</strong> <a href="mailto:info@ppmc.gov.pk">info@ppmc.gov.pk</a></li>
+    <li><strong>Contact:</strong> <a href="tel:051-9211301">051-9211301, 51-9211302</a></li>
+    <li><strong>Fax:</strong> <a href="tel:051-2726915">051-2726915</a></li>
+    <li><strong>Address:</strong> <a href="https://maps.app.goo.gl/vi5g1yBcWVVmRBUE7" target="_blank">Office #112, Evacuee Trust Complex, Agha Khan Road, Islamabad</a></li>
+  </ul>
+</div>
