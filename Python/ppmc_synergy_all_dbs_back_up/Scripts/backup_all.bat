@@ -2,20 +2,19 @@
 setlocal
 
 REM ==========================================
-REM BACKUP CONFIGURATION - CHANGE HERE ONLY
+REM LOAD CONFIGURATION FROM .env FILE
 REM ==========================================
-set "PG_HOST=localhost"
-set "PG_PORT=5432"
-set "PG_USER=postgres"
-set "PGPASSWORD=postgres"
-set "PGBIN=C:\Program Files\PostgreSQL\16\bin"
-set "BACKUP_ROOT=C:\pg_backup"
+set "ENV_FILE=%~dp0..\.env"
+if not exist "%ENV_FILE%" (
+    echo [ERROR] .env file not found at %ENV_FILE%
+    echo Please create a .env file based on .env.example in the project root.
+    pause
+    exit /b 1
+)
 
-REM Schedule mode: DAILY, ALTERNATE, WEEKLY
-set "SCHEDULE=DAILY"
-
-REM If WEEKLY - set the day: MON TUE WED THU FRI SAT SUN
-set "WEEKLY_DAY=SUN"
+for /f "usebackq tokens=1,* delims==" %%i in (`findstr /R /C:"^[a-zA-Z_][a-zA-Z0-9_]*=" "%ENV_FILE%"`) do (
+    set "%%i=%%j"
+)
 REM ==========================================
 
 REM Get today's date and day

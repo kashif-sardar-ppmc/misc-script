@@ -1,0 +1,4 @@
+.env
+pg_backup/
+*.backup
+*.log
