@@ -1,0 +1,349 @@
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Main Wrapper */
+    .ppmc-main-grid {
+        max-width: 1480px;
+        margin: 20px auto;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #fff;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    /* Pair Card */
+    .ppmc-unit-pair {
+        display: flex;
+        width: 100%;
+        min-height: 340px;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+        background: #fff;
+    }
+
+    .ppmc-unit-pair.reverse {
+        flex-direction: row-reverse;
+    }
+
+    .ppmc-unit-part {
+        flex: 1 1 50%;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+    /* Image */
+    .ppmc-unit-img {
+        min-height: 340px;
+        background: #eaeaea;
+    }
+
+    .ppmc-unit-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Text */
+    .ppmc-unit-text {
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: #ffffff;
+        z-index: 2;
+        position: relative;
+    }
+
+    .ppmc-navy-unit {
+        background-color: #003366 !important;
+        color: #ffffff !important;
+    }
+
+    .ppmc-navy-unit .ppmc-name,
+    .ppmc-navy-unit .ppmc-tag,
+    .ppmc-navy-unit .ppmc-description {
+        color: #ffffff !important;
+    }
+
+    .ppmc-navy-unit .ppmc-tag {
+        color: #cfd8dc !important;
+    }
+
+    .ppmc-navy-unit .ppmc-description {
+        color: #e6edf3 !important;
+    }
+
+    /* Hover */
+    .ppmc-unit-pair:hover .ppmc-unit-img img {
+        transform: scale(1.08);
+    }
+
+    .ppmc-unit-pair:hover .ppmc-unit-text {
+        background-color: #f7fbf7;
+    }
+
+    .ppmc-unit-pair:hover .ppmc-navy-unit {
+        background-color: #00264d !important;
+    }
+
+    .ppmc-unit-text::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 0;
+        height: 4px;
+        background-color: #2e7d32;
+        transition: width 0.4s ease;
+    }
+
+    .ppmc-unit-pair:hover .ppmc-unit-text::after {
+        width: 100%;
+    }
+
+    /* Typography */
+    .ppmc-name {
+        font-size: 1.35rem !important;
+        font-weight: 700 !important;
+        margin: 0 0 8px 0 !important;
+        line-height: 1.3;
+    }
+
+    .ppmc-green {
+        color: #2e7d32 !important;
+    }
+
+    .ppmc-tag {
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px;
+        color: #7a7a7a;
+        margin-bottom: 14px !important;
+        display: block;
+        line-height: 1.6;
+    }
+
+    .ppmc-description {
+        font-size: 0.95rem !important;
+        line-height: 1.4;
+        margin: 0 !important;
+        color: #555;
+        word-break: break-word;
+    }
+
+    /* Tablet */
+    @media (max-width: 992px) {
+        .ppmc-main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ppmc-unit-pair,
+        .ppmc-unit-pair.reverse {
+            flex-direction: row;
+        }
+
+        .ppmc-unit-img {
+            min-height: 300px;
+        }
+
+        .ppmc-name {
+            font-size: 1.25rem !important;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 767px) {
+        .ppmc-main-grid {
+            margin: 12px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .ppmc-unit-pair,
+        .ppmc-unit-pair.reverse {
+            flex-direction: column;
+            min-height: auto;
+        }
+
+        .ppmc-unit-part {
+            flex: unset;
+            width: 100%;
+        }
+
+        .ppmc-unit-img {
+            min-height: 240px;
+            height: 240px;
+        }
+
+        .ppmc-unit-text {
+            padding: 20px 18px;
+        }
+
+        .ppmc-name {
+            font-size: 1.1rem !important;
+            margin-bottom: 6px !important;
+        }
+
+        .ppmc-tag {
+            font-size: 0.72rem !important;
+            margin-bottom: 10px !important;
+            line-height: 1.5;
+        }
+
+        .ppmc-description {
+            font-size: 0.9rem !important;
+            line-height: 1.6;
+        }
+
+        .ppmc-unit-pair:hover .ppmc-unit-img img {
+            transform: none;
+        }
+
+        .ppmc-unit-pair:hover .ppmc-unit-text {
+            background-color: inherit;
+        }
+
+        .ppmc-unit-text::after {
+            height: 3px;
+        }
+    }
+
+    /* Extra Small Devices */
+    @media (max-width: 480px) {
+        .ppmc-main-grid {
+            margin: 10px;
+        }
+
+        .ppmc-unit-img {
+            min-height: 210px;
+            height: 210px;
+        }
+
+        .ppmc-unit-text {
+            padding: 18px 16px;
+        }
+
+        .ppmc-name {
+            font-size: 1rem !important;
+        }
+
+        .ppmc-description {
+            font-size: 0.88rem !important;
+        }
+    }
+</style>
+
+<div class="ppmc-main-grid">
+
+    <div class="ppmc-unit-pair">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc.gov.pk/admin/storage/uploads/ckeditor/Website Team Pics  (5)_app_8DsdKQznvu.jpg" alt="Abid Latif Lodhi">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text ppmc-navy-unit">
+            <h3 class="ppmc-name">Mr. Abid Latif Lodhi</h3>
+            <span class="ppmc-tag">MD/Executive Director</span>
+            <p class="ppmc-description">Mr. Abid Latif Lodhi, Managing Director PPMC, is a seasoned power sector expert with over 30 years of experience in market design, tariff setting, and financial management.</p>
+        </div>
+    </div>
+
+    <div class="ppmc-unit-pair">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc.gov.pk/admin/storage/uploads/ckeditor/Website Team Pics  (4)_app_2MsdxsEqNw.jpg" alt="Tufail Ahmed Shaikh">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text">
+            <h3 class="ppmc-name ppmc-green">Mr. Tufail Ahmed Shaikh</h3>
+            <span class="ppmc-tag">Chief Technical Services</span>
+            <p class="ppmc-description">Engr. Tufail Ahmed Shaikh, Gold Medalist, is a distinguished power sector engineering and utility modernization expert with over 34 years of leadership experience in electricity distribution systems, technical governance, smart grid transformation, and institutional reform. He holds a Master's Degree in Engineering (Information Technology) and a Master's Degree in Business Administration (Finance), along with multiple national and international certifications in Quality, Safety, Leadership, and Professional Coaching.
+
+            </p>
+        </div>
+    </div>
+
+
+
+    <div class="ppmc-unit-pair reverse">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc-stg.vteamslabs.com/admin/storage/uploads/ckeditor/60111_app_47rrZW8siu.jpg" alt="Naveed Qaisar">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text">
+            <h3 class="ppmc-name ppmc-green">Mr. Naveed Qaisar</h3>
+            <span class="ppmc-tag">Chief Financial Officer, Planning Support & Regulatory Affairs</span>
+            <p class="ppmc-description"></p>
+        </div>
+    </div>
+
+    <div class="ppmc-unit-pair reverse">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc.gov.pk/admin/storage/uploads/ckeditor/WhatsApp Image 2026-06-18 at 20052 PM_app_uUefkFHKrY.jpeg" alt="Muhammad Mubashar Jalal Bhatti">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text">
+            <h3 class="ppmc-name ppmc-green">Mr. Muhammad Mubashar Jalal Bhatti</h3>
+            <span class="ppmc-tag">Chief Monitoring & Reporting</span>
+            <p class="ppmc-description">Mr. Muhammad Mubashar Jalal Bhatti is a senior finance and energy-sector professional with over two decades of experience spanning regulatory policy, tariff economics, fund management, and corporate finance.He holds an MBA degree from International Islamic University and has completed an International Training Program in Utility Regulations and Public Private Partnership from the University of Florida, USA. He is also a CMA candidate with CIMA.</p>
+        </div>
+    </div>
+
+    <div class="ppmc-unit-pair ">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc.gov.pk/admin/storage/uploads/ckeditor/Website Team Pics _app_odeyAwpOPj.jpg" alt="Talha Khalid">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text">
+            <h3 class="ppmc-name ppmc-green">Mr. Talha Khalid</h3>
+            <span class="ppmc-tag">Lead Integrated Planning and Economic Analysis</span>
+            <p class="ppmc-description">Mr. Talha Khalid is a planning and strategy professional with leadership in energy policy, strategic planning, and AI-driven transformation initiatives across the power sector. Over 15 years of experience in national-level energy planning, market design, and reform implementation, supporting net-zero transition and sector modernization. Expertise in policy development, energy systems planning, stakeholder engagement, and data-driven decision-making.</p>
+        </div>
+    </div>
+
+
+
+    <div class="ppmc-unit-pair">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc.gov.pk/admin/storage/uploads/ckeditor/Website Team Pics  (2)_app_5cCdEzmahv.jpg" alt="Azia Shoaib">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text">
+            <h3 class="ppmc-name ppmc-green">Ms. Azia Shoaib</h3>
+            <span class="ppmc-tag">Chief Corporate Services & Coordination</span>
+            <p class="ppmc-description">Ms. Azia Shoaib is a CIPD-qualified HR professional (UK) with dual postgraduate degrees in HRM (University of Strathclyde, Glasgow) and Sociology (University of the Punjab, Lahore – Gold Medalist). She has 20+ years of experience in HR management and administration across national and international engineering organizations.</p>
+        </div>
+    </div>
+
+
+
+    <div class="ppmc-unit-pair reverse">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc.gov.pk/admin/storage/uploads/ckeditor/Website Team Pics  (1)_app_0Y75TaC5fm.jpg" alt="Fayyaz Amin Malik">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text">
+            <h3 class="ppmc-name ppmc-green">Mr. Fayyaz Amin Malik</h3>
+            <span class="ppmc-tag">Chief Internal Auditor</span>
+            <p class="ppmc-description">Mr. Fayyaz Amin Malik is a Certified Director SOE with senior leadership experience in internal audit, governance, and financial oversight in large public sector organizations. He has 20+ years of diversified experience, including international consulting exposure across oil & gas, logistics, telecom, and the public sector. He specializes in audit, risk advisory, financial management, and governance.</p>
+        </div>
+    </div>
+
+    <div class="ppmc-unit-pair reverse">
+        <div class="ppmc-unit-part ppmc-unit-img">
+            <img src="https://ppmc.gov.pk/admin/storage/uploads/ckeditor/Website Team Pics  (3)_app_mbQcrE9o37.jpg" alt="Muhammad Imran Noor">
+        </div>
+        <div class="ppmc-unit-part ppmc-unit-text">
+            <h3 class="ppmc-name ppmc-green">Mr. Muhammad Imran Noor</h3>
+            <span class="ppmc-tag">Company Secretary</span>
+            <p class="ppmc-description">Mr. Muhammad Imran Noor is CPA, CICA, CFRA, and Master in Finance, with 20+ years of progressive experience in Corporate Governance, Regulatory Compliance, and Corporate Affairs, including more than a decade at the C-level across large-scale State-Owned Enterprises, Government organizations, and the Private Sector.</p>
+        </div>
+    </div>
+
+</div>
+
+
