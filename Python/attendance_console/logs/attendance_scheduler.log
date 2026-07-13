@@ -1,0 +1,145 @@
+
+============================================================
+Started: Mon 07/13/2026  9:59:57.48
+Mode: Monday - option 1, then 7 days
+======================================
+ Attendance Sync Started
+======================================
+
+==============================
+ ATTENDANCE DAILY SYNC 
+==============================
+
+1) Last N days
+2) Custom date range
+3) Yesterday only
+0) Exit / Back
+
+Enter choice: 
+Enter number of days (N)
+Examples:
+Traceback (most recent call last):
+  File "D:\PPMC\Projects\misc-script\Python\attendance_console\sync_attendance.py", line 133, in <module>
+    main()
+    ~~~~^^
+  File "D:\PPMC\Projects\misc-script\Python\attendance_console\sync_attendance.py", line 126, in main
+    daily_menu()
+    ~~~~~~~~~~^^
+  File "D:\PPMC\Projects\misc-script\Python\attendance_console\sync_attendance.py", line 39, in daily_menu
+    print("  0 \u2192 today only")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python314\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 4: character maps to <undefined>
+Finished: Mon 07/13/2026  9:59:58.31
+Exit code: 
+============================================================
+
+============================================================
+Started: Mon 07/13/2026 10:01:57.98
+Mode: Monday - option 1, then 7 days
+======================================
+ Attendance Sync Started
+======================================
+
+==============================
+ ATTENDANCE DAILY SYNC 
+==============================
+
+1) Last N days
+2) Custom date range
+3) Yesterday only
+0) Exit / Back
+
+Enter choice: 
+Enter number of days (N)
+Examples:
+  0 → today only
+  1 → yesterday + today
+  3 → last 3 days
+  b → back
+
+Enter N: [INFO] Syncing last 7 days: 2026-07-06 → 2026-07-13
+[INFO] Fetching device data: 2026-07-06 → 2026-07-13
+[INFO] Raw events fetched: 2735
+[INFO] Attendance rows prepared: 467
+[INFO] Sync completed. Rows upserted: 467
+======================================
+ Attendance Sync Finished
+======================================
+Finished: Mon 07/13/2026 10:02:06.29
+Exit code: 0
+============================================================
+
+============================================================
+Started: Mon 07/13/2026 10:08:09.76
+Mode: Monday - option 1, then 7 days
+======================================
+ Attendance Sync Started
+======================================
+
+==============================
+ ATTENDANCE DAILY SYNC 
+==============================
+
+1) Last N days
+2) Custom date range
+3) Yesterday only
+0) Exit / Back
+
+Enter choice: 
+Enter number of days (N)
+Examples:
+  0 → today only
+  1 → yesterday + today
+  3 → last 3 days
+  b → back
+
+Enter N: [INFO] Syncing last 7 days: 2026-07-06 → 2026-07-13
+[INFO] Fetching device data: 2026-07-06 → 2026-07-13
+[INFO] Raw events fetched: 2735
+[INFO] Attendance rows prepared: 467
+[INFO] Sync completed. Rows upserted: 467
+======================================
+ Attendance Sync Finished
+======================================
+Finished: Mon 07/13/2026 10:08:19.43
+Exit code: 0
+============================================================
+
+============================================================
+Started: Mon 07/13/2026 10:09:11.91
+Mode: Monday - option 1, then 7 days
+======================================
+ Attendance Sync Started
+======================================
+
+==============================
+ ATTENDANCE DAILY SYNC 
+==============================
+
+1) Last N days
+2) Custom date range
+3) Yesterday only
+0) Exit / Back
+
+Enter choice: 
+Enter number of days (N)
+Examples:
+  0 → today only
+  1 → yesterday + today
+  3 → last 3 days
+  b → back
+
+Enter N: [INFO] Syncing last 7 days: 2026-07-06 → 2026-07-13
+[INFO] Fetching device data: 2026-07-06 → 2026-07-13
+[INFO] Raw events fetched: 2735
+[INFO] Attendance rows prepared: 467
+[INFO] Sync completed. Rows upserted: 467
+======================================
+ Attendance Sync Finished
+======================================
+Finished: Mon 07/13/2026 10:09:20.59
+Exit code: 0
+============================================================
