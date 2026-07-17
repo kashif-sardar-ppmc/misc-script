@@ -8,7 +8,7 @@ set "PYTHONIOENCODING=utf-8"
 
 set "PROJECT_DIR=D:\PPMC\Projects\misc-script\Python\attendance_console"
 set "SCRIPT_PATH=%PROJECT_DIR%\sync_attendance.py"
-set "LOG_DIR=%PROJECT_DIR%\logs"
+set "LOG_DIR=C:\logs"
 set "LOG_FILE=%LOG_DIR%\attendance_scheduler.log"
 
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
