@@ -23,16 +23,20 @@ REM Sunday=0, Monday=1, Tuesday=2 ... Saturday=6
 for /f %%D in ('powershell.exe -NoProfile -Command "[int](Get-Date).DayOfWeek"') do set "DAY_NUMBER=%%D"
 
 if "!DAY_NUMBER!"=="1" (
-    echo Mode: Monday - option 1, then 7 days>>"%LOG_FILE%"
+    echo Mode: Monday - all employees, option 1, then 7 days>>"%LOG_FILE%"
     (
+        echo 1
         echo 1
         echo 7
     ) | python -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
 
     set "EXIT_CODE=!ERRORLEVEL!"
 ) else (
-    echo Mode: Daily - option 3, yesterday only>>"%LOG_FILE%"
-    echo 3 | python -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
+    echo Mode: Daily - all employees, option 3, yesterday only>>"%LOG_FILE%"
+    (
+        echo 1
+        echo 3
+    ) | python -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
 
     set "EXIT_CODE=!ERRORLEVEL!"
 )

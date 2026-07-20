@@ -35,7 +35,21 @@ python sync_attendance.py --full
 
 ## Daily Sync Menu
 
-When you run `--daily`, this menu appears:
+When you run `--daily`, choose the employee scope first:
+
+```
+==============================
+ ATTENDANCE EMPLOYEE SCOPE
+==============================
+
+1) All employee
+2) Specific ID(s)
+0) Exit / Back
+
+Enter choice:
+```
+
+Then choose the date range:
 
 ```
 ==============================
@@ -60,6 +74,7 @@ Enter choice:
 ### Daily Routine (Every Day)
 
 ```
+Enter choice: 1
 Enter choice: 3
 ```
 
@@ -84,6 +99,18 @@ End date:   2026-01-31
 ```
 
 ---
+
+## Specific Attendance ID(s)
+
+Choose `2) Specific ID(s)` in the employee scope menu, enter one ID or multiple comma-separated IDs, then choose any date option:
+
+```
+Enter choice: 2
+Enter attendance ID(s), comma separated (or b to back): 1234, 5678, 9012
+Enter choice: 2
+Start date: 2026-01-01
+End date:   2026-01-31
+```
 
 ## Full Import (One-Time Only)
 

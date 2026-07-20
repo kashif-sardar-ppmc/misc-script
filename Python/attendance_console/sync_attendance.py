@@ -9,8 +9,47 @@ from attendance_sync_service import (
 )
 
 
+def attendance_scope_menu():
+    while True:
+        print("\n==============================")
+        print(" ATTENDANCE EMPLOYEE SCOPE ")
+        print("==============================\n")
+
+        print("1) All employee")
+        print("2) Specific ID(s)")
+        print("0) Exit / Back\n")
+
+        choice = input("Enter choice: ").strip().lower()
+
+        if choice == "0":
+            print("Returning to main menu...\n")
+            return None, True
+
+        if choice == "1":
+            return None, False
+
+        if choice == "2":
+            while True:
+                attendance_id = input("Enter attendance ID(s), comma separated (or b to back): ").strip()
+
+                if attendance_id.lower() == "b":
+                    break
+
+                if attendance_id:
+                    return attendance_id, False
+
+                print("[ERROR] Attendance ID cannot be empty.")
+
+        else:
+            print("Invalid choice. Try again.")
+
+
 def daily_menu():
     while True:
+        attendance_id, should_exit = attendance_scope_menu()
+        if should_exit:
+            return
+
         print("\n==============================")
         print(" ATTENDANCE DAILY SYNC ")
         print("==============================\n")
@@ -48,7 +87,7 @@ def daily_menu():
 
                 try:
                     n = int(val)
-                    sync_last_n_days(n)
+                    sync_last_n_days(n, attendance_id=attendance_id)
                     return
                 except Exception as e:
                     print(f"[ERROR] {e}")
@@ -73,7 +112,7 @@ def daily_menu():
                     break
 
                 try:
-                    sync_date_range(start, end)
+                    sync_date_range(start, end, attendance_id=attendance_id)
                     return
                 except Exception as e:
                     print(f"[ERROR] {e}")
@@ -82,7 +121,7 @@ def daily_menu():
         # YESTERDAY ONLY
         # ---------------------------------
         elif choice == "3":
-            daily_sync_yesterday()
+            daily_sync_yesterday(attendance_id=attendance_id)
             return
 
         else:

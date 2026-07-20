@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timedelta, date
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Optional
 
 import requests
 from requests.auth import HTTPDigestAuth
@@ -20,26 +21,74 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # =========================================================
 # 1) Fetch events from a single Hikvision device
 # =========================================================
-def fetch_from_single_device(device_url, start_date: str, end_date: str):
+def normalize_attendance_id(attendance_id):
+    if attendance_id is None:
+        return None
+
+    attendance_id = str(attendance_id).strip()
+    return attendance_id or None
+
+
+def normalize_attendance_ids(attendance_id):
+    if attendance_id is None:
+        return None
+
+    if isinstance(attendance_id, (list, tuple, set)):
+        ids = [normalize_attendance_id(value) for value in attendance_id]
+    else:
+        ids = [
+            normalize_attendance_id(value)
+            for value in str(attendance_id).replace("\n", ",").split(",")
+        ]
+
+    ids = [value for value in ids if value]
+    return ids or None
+
+
+def filter_raw_events_by_attendance_id(raw_events, attendance_id):
+    attendance_ids = normalize_attendance_ids(attendance_id)
+    if not attendance_ids:
+        return raw_events
+
+    attendance_id_set = set(attendance_ids)
+    return [
+        ev for ev in raw_events
+        if str(ev.get("employeeNoString") or ev.get("employeeNo") or "").strip() in attendance_id_set
+    ]
+
+
+def fetch_from_single_device(
+    device_url,
+    start_date: str,
+    end_date: str,
+    attendance_id: Optional[str] = None,
+    use_device_filter: bool = True,
+):
     all_raw_events = []
     position = 0
     max_results = 30
     headers = {"Content-Type": "application/json"}
+    attendance_id = normalize_attendance_id(attendance_id)
 
     start_time = f"{start_date}T00:00:00+05:00"
     end_time = f"{end_date}T23:59:59+05:00"
 
     while True:
+        event_condition = {
+            "searchID": "attendance-selected" if attendance_id else "attendance-all",
+            "searchResultPosition": position,
+            "maxResults": max_results,
+            "major": 5,
+            "minor": 0,
+            "startTime": start_time,
+            "endTime": end_time,
+        }
+
+        if attendance_id and use_device_filter:
+            event_condition["employeeNoString"] = attendance_id
+
         payload = {
-            "AcsEventCond": {
-                "searchID": "attendance-all",
-                "searchResultPosition": position,
-                "maxResults": max_results,
-                "major": 5,
-                "minor": 0,
-                "startTime": start_time,
-                "endTime": end_time,
-            }
+            "AcsEventCond": event_condition
         }
 
         r = requests.post(
@@ -50,6 +99,7 @@ def fetch_from_single_device(device_url, start_date: str, end_date: str):
             timeout=20,
             verify=False,
         )
+        r.raise_for_status()
 
         # Hikvision sometimes responds with XML-like auth failure
         if "<statusValue>401</statusValue>" in (r.text or ""):
@@ -77,21 +127,44 @@ def fetch_from_single_device(device_url, start_date: str, end_date: str):
 # =========================================================
 # 2) Fetch events from ALL devices (parallel)
 # =========================================================
-def get_hikvision_events_range(start_date: str, end_date: str):
+def get_hikvision_events_range(start_date: str, end_date: str, attendance_id: Optional[str] = None):
+    attendance_ids = normalize_attendance_ids(attendance_id)
+    device_filter_id = attendance_ids[0] if attendance_ids and len(attendance_ids) == 1 else None
+    scope_text = f" for attendance ID(s) {', '.join(attendance_ids)}" if attendance_ids else ""
+    if scope_text:
+        print(f"[INFO] Employee scope:{scope_text}")
     print(f"[INFO] Fetching device data: {start_date} → {end_date}")
 
     events = []
     with ThreadPoolExecutor(max_workers=min(8, len(DEVICE_URLS))) as executor:
         futures = {
-            executor.submit(fetch_from_single_device, url, start_date, end_date): url
+            executor.submit(fetch_from_single_device, url, start_date, end_date, device_filter_id): url
             for url in DEVICE_URLS
         }
 
         for future in as_completed(futures):
-            res = future.result()
+            try:
+                res = future.result()
+            except Exception as exc:
+                if not device_filter_id:
+                    raise
+
+                url = futures[future]
+                print(
+                    "[WARN] Device-side employee filter failed for "
+                    f"{url}. Retrying full fetch and filtering locally. Error: {exc}"
+                )
+                res = fetch_from_single_device(
+                    url,
+                    start_date,
+                    end_date,
+                    attendance_id=device_filter_id,
+                    use_device_filter=False,
+                )
             if isinstance(res, list):
                 events.extend(res)
 
+    events = filter_raw_events_by_attendance_id(events, attendance_ids)
     print(f"[INFO] Raw events fetched: {len(events)}")
     return events
 
@@ -118,12 +191,14 @@ def load_emp_map():
 # =========================================================
 # 4) Prepare attendance rows (group punches)
 # =========================================================
-def prepare_attendance_rows(raw_events, emp_map):
+def prepare_attendance_rows(raw_events, emp_map, attendance_id: Optional[str] = None):
     """
     Returns list of tuples:
     (attendance_id, emp_no, date, check_in, check_out)
     """
     punches = defaultdict(list)
+    attendance_ids = normalize_attendance_ids(attendance_id)
+    attendance_id_set = set(attendance_ids) if attendance_ids else None
 
     for ev in raw_events:
         emp_id = ev.get("employeeNoString") or ev.get("employeeNo")
@@ -133,6 +208,9 @@ def prepare_attendance_rows(raw_events, emp_map):
             continue
 
         emp_id_str = str(emp_id).strip()
+        if attendance_id_set and emp_id_str not in attendance_id_set:
+            continue
+
         emp_no = emp_map.get(emp_id_str)
 
         if not emp_no:
@@ -219,7 +297,7 @@ def full_import_till_yesterday():
 # =========================================================
 # 7) DAILY SYNC (yesterday only)
 # =========================================================
-def daily_sync_yesterday():
+def daily_sync_yesterday(attendance_id: Optional[str] = None):
     today = date.today()
     yesterday = today - timedelta(days=1)
 
@@ -228,9 +306,13 @@ def daily_sync_yesterday():
 
     print(f"[INFO] Daily sync started for {start} → {end}")
 
-    raw = get_hikvision_events_range(start, end)
+    attendance_ids = normalize_attendance_ids(attendance_id)
+    if attendance_ids:
+        print(f"[INFO] Daily sync attendance ID(s): {', '.join(attendance_ids)}")
+
+    raw = get_hikvision_events_range(start, end, attendance_id=attendance_ids)
     emp_map = load_emp_map()
-    rows = prepare_attendance_rows(raw, emp_map)
+    rows = prepare_attendance_rows(raw, emp_map, attendance_id=attendance_ids)
     upserted = upsert_attendance_rows(rows)
 
     print(f"[INFO] Daily sync completed. Rows upserted: {upserted}")
@@ -239,7 +321,7 @@ def daily_sync_yesterday():
 # =========================================================
 # 8) SYNC LAST N DAYS (0 = TODAY)
 # =========================================================
-def sync_last_n_days(n: int):
+def sync_last_n_days(n: int, attendance_id: Optional[str] = None):
     if n < 0:
         raise ValueError("Days cannot be negative")
 
@@ -251,9 +333,13 @@ def sync_last_n_days(n: int):
 
     print(f"[INFO] Syncing last {n} days: {start_str} → {end_str}")
 
-    raw = get_hikvision_events_range(start_str, end_str)
+    attendance_ids = normalize_attendance_ids(attendance_id)
+    if attendance_ids:
+        print(f"[INFO] Sync attendance ID(s): {', '.join(attendance_ids)}")
+
+    raw = get_hikvision_events_range(start_str, end_str, attendance_id=attendance_ids)
     emp_map = load_emp_map()
-    rows = prepare_attendance_rows(raw, emp_map)
+    rows = prepare_attendance_rows(raw, emp_map, attendance_id=attendance_ids)
     upserted = upsert_attendance_rows(rows)
 
     print(f"[INFO] Sync completed. Rows upserted: {upserted}")
@@ -263,7 +349,7 @@ def sync_last_n_days(n: int):
 # =========================================================
 # 9) SYNC CUSTOM DATE RANGE
 # =========================================================
-def sync_date_range(start_date: str, end_date: str):
+def sync_date_range(start_date: str, end_date: str, attendance_id: Optional[str] = None):
     try:
         start = datetime.strptime(start_date, "%Y-%m-%d").date()
         end = datetime.strptime(end_date, "%Y-%m-%d").date()
@@ -275,9 +361,13 @@ def sync_date_range(start_date: str, end_date: str):
 
     print(f"[INFO] Syncing range: {start_date} → {end_date}")
 
-    raw = get_hikvision_events_range(start_date, end_date)
+    attendance_ids = normalize_attendance_ids(attendance_id)
+    if attendance_ids:
+        print(f"[INFO] Sync attendance ID(s): {', '.join(attendance_ids)}")
+
+    raw = get_hikvision_events_range(start_date, end_date, attendance_id=attendance_ids)
     emp_map = load_emp_map()
-    rows = prepare_attendance_rows(raw, emp_map)
+    rows = prepare_attendance_rows(raw, emp_map, attendance_id=attendance_ids)
     upserted = upsert_attendance_rows(rows)
 
     print(f"[INFO] Sync completed. Rows upserted: {upserted}")
