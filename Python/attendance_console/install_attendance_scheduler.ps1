@@ -25,6 +25,8 @@ $createArgs = @(
     "/TR", $taskRun,
     "/SC", "HOURLY",
     "/MO", "2",
+    "/RU", "SYSTEM",
+    "/RL", "HIGHEST",
     "/F"
 )
 
@@ -36,6 +38,22 @@ if ($LASTEXITCODE -ne 0) {
 & schtasks.exe /Query /TN $TaskName /V /FO LIST | Tee-Object -FilePath $InstallLog -Append
 if ($LASTEXITCODE -ne 0) {
     throw "Task verification failed. See $InstallLog"
+}
+
+$task = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
+$settings = New-ScheduledTaskSettingsSet `
+    -StartWhenAvailable `
+    -MultipleInstances IgnoreNew `
+    -ExecutionTimeLimit (New-TimeSpan -Hours 2) `
+    -AllowStartIfOnBatteries `
+    -DontStopIfGoingOnBatteries
+$task.Settings = $settings
+$task.Actions[0].WorkingDirectory = $ProjectDir
+$task | Set-ScheduledTask | Out-Null
+
+& schtasks.exe /Query /TN $TaskName /V /FO LIST | Tee-Object -FilePath $InstallLog -Append
+if ($LASTEXITCODE -ne 0) {
+    throw "Task settings verification failed. See $InstallLog"
 }
 
 "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Scheduled task installed successfully." | Out-File -FilePath $InstallLog -Append -Encoding utf8

@@ -10,13 +10,12 @@ set "PROJECT_DIR=%~dp0"
 if "%PROJECT_DIR:~-1%"=="\" set "PROJECT_DIR=%PROJECT_DIR:~0,-1%"
 set "SCRIPT_PATH=%PROJECT_DIR%\sync_attendance.py"
 set "PYTHON_EXE=%PROJECT_DIR%\.venv\Scripts\python.exe"
+set "PYTHON_ARGS=-X utf8"
 set "LOG_DIR=%PROJECT_DIR%\log"
 
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
 
 cd /d "%PROJECT_DIR%" || exit /b 1
-
-if not exist "%PYTHON_EXE%" set "PYTHON_EXE=python"
 
 for /f %%D in ('powershell.exe -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set "RUN_DATE=%%D"
 set "LOG_FILE=%LOG_DIR%\attendance_%RUN_DATE%.log"
@@ -24,6 +23,27 @@ set "LOG_FILE=%LOG_DIR%\attendance_%RUN_DATE%.log"
 echo.>>"%LOG_FILE%"
 echo ============================================================>>"%LOG_FILE%"
 echo Started: %DATE% %TIME%>>"%LOG_FILE%"
+
+if not exist "%PYTHON_EXE%" (
+    for %%P in (python.exe) do set "PATH_PYTHON=%%~$PATH:P"
+    if defined PATH_PYTHON (
+        set "PYTHON_EXE=!PATH_PYTHON!"
+    ) else (
+        for %%P in (py.exe) do set "PATH_PYTHON_LAUNCHER=%%~$PATH:P"
+        if defined PATH_PYTHON_LAUNCHER (
+            set "PYTHON_EXE=!PATH_PYTHON_LAUNCHER!"
+            set "PYTHON_ARGS=-3 -X utf8"
+        ) else (
+            echo ERROR: Python was not found. Run setup_remote_desktop.ps1 to install Python and create .venv.>>"%LOG_FILE%"
+            echo Finished: %DATE% %TIME%>>"%LOG_FILE%"
+            echo Exit code: 9009>>"%LOG_FILE%"
+            echo ============================================================>>"%LOG_FILE%"
+            exit /b 9009
+        )
+    )
+)
+
+echo Python: %PYTHON_EXE%>>"%LOG_FILE%"
 
 REM Sunday=0, Monday=1, Tuesday=2 ... Saturday=6
 for /f %%D in ('powershell.exe -NoProfile -Command "[int](Get-Date).DayOfWeek"') do set "DAY_NUMBER=%%D"
@@ -34,7 +54,7 @@ if "!DAY_NUMBER!"=="1" (
         echo 1
         echo 1
         echo 7
-    ) | "%PYTHON_EXE%" -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
+    ) | "%PYTHON_EXE%" %PYTHON_ARGS% "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
 
     set "EXIT_CODE=!ERRORLEVEL!"
 ) else (
@@ -42,7 +62,7 @@ if "!DAY_NUMBER!"=="1" (
     (
         echo 1
         echo 3
-    ) | "%PYTHON_EXE%" -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
+    ) | "%PYTHON_EXE%" %PYTHON_ARGS% "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
 
     set "EXIT_CODE=!ERRORLEVEL!"
 )
