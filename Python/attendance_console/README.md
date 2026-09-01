@@ -82,6 +82,78 @@ That's it. Script will sync yesterday and finish automatically.
 
 ---
 
+## Fresh Remote Desktop Setup
+
+Use this on the PPMC remote desktop to install Python, install requirements, and run the attendance sync every 2 hours.
+
+**Step 1** - Copy this folder to:
+
+```powershell
+C:\scripts\attendance_console
+```
+
+Make sure the `.env` file is also present in that folder.
+
+**Step 2** - Open PowerShell and run:
+
+```powershell
+cd "C:\scripts\attendance_console"
+powershell.exe -ExecutionPolicy Bypass -File .\setup_remote_desktop.ps1
+```
+
+This installs:
+
+```text
+Python 3.12
+.venv
+requirements.txt packages
+Windows Scheduled Task
+```
+
+The scheduled task is named:
+
+```text
+PPMC Attendance Console Sync
+```
+
+The task runs every 2 hours and writes date-wise logs to:
+
+```text
+C:\scripts\attendance_console\log\attendance_yyyy-MM-dd.log
+```
+
+Example:
+
+```text
+C:\scripts\attendance_console\log\attendance_2026-09-01.log
+```
+
+Setup logs are saved to:
+
+```text
+C:\scripts\attendance_console\log\remote_setup.log
+```
+
+To run the task manually for testing:
+
+```powershell
+schtasks /Run /TN "PPMC Attendance Console Sync"
+```
+
+To check the task:
+
+```powershell
+schtasks /Query /TN "PPMC Attendance Console Sync" /V /FO LIST
+```
+
+To check today's attendance log:
+
+```powershell
+Get-Content "C:\scripts\attendance_console\log\attendance_$(Get-Date -Format yyyy-MM-dd).log" -Tail 80
+```
+
+---
+
 ## Choice 1 — Last N Days (Examples)
 
 ```

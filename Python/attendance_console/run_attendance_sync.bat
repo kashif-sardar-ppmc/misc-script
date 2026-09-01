@@ -6,14 +6,20 @@ chcp 65001 >nul
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 
-set "PROJECT_DIR=D:\PPMC\Projects\misc-script\Python\attendance_console"
+set "PROJECT_DIR=%~dp0"
+if "%PROJECT_DIR:~-1%"=="\" set "PROJECT_DIR=%PROJECT_DIR:~0,-1%"
 set "SCRIPT_PATH=%PROJECT_DIR%\sync_attendance.py"
-set "LOG_DIR=C:\logs"
-set "LOG_FILE=%LOG_DIR%\attendance_scheduler.log"
+set "PYTHON_EXE=%PROJECT_DIR%\.venv\Scripts\python.exe"
+set "LOG_DIR=%PROJECT_DIR%\log"
 
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
 
 cd /d "%PROJECT_DIR%" || exit /b 1
+
+if not exist "%PYTHON_EXE%" set "PYTHON_EXE=python"
+
+for /f %%D in ('powershell.exe -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set "RUN_DATE=%%D"
+set "LOG_FILE=%LOG_DIR%\attendance_%RUN_DATE%.log"
 
 echo.>>"%LOG_FILE%"
 echo ============================================================>>"%LOG_FILE%"
@@ -28,7 +34,7 @@ if "!DAY_NUMBER!"=="1" (
         echo 1
         echo 1
         echo 7
-    ) | python -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
+    ) | "%PYTHON_EXE%" -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
 
     set "EXIT_CODE=!ERRORLEVEL!"
 ) else (
@@ -36,7 +42,7 @@ if "!DAY_NUMBER!"=="1" (
     (
         echo 1
         echo 3
-    ) | python -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
+    ) | "%PYTHON_EXE%" -X utf8 "%SCRIPT_PATH%" --daily >>"%LOG_FILE%" 2>&1
 
     set "EXIT_CODE=!ERRORLEVEL!"
 )

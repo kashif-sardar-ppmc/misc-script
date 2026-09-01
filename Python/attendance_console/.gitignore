@@ -11,3 +11,9 @@ venv/
 .venv/
 env/
 ENV/
+
+# Runtime logs
+log/*
+logs/*
+!log/.gitkeep
+!logs/.gitkeep
