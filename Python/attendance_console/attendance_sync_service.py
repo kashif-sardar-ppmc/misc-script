@@ -136,6 +136,7 @@ def get_hikvision_events_range(start_date: str, end_date: str, attendance_id: Op
     print(f"[INFO] Fetching device data: {start_date} → {end_date}")
 
     events = []
+    failed_devices = []
     with ThreadPoolExecutor(max_workers=min(8, len(DEVICE_URLS))) as executor:
         futures = {
             executor.submit(fetch_from_single_device, url, start_date, end_date, device_filter_id): url
@@ -143,26 +144,38 @@ def get_hikvision_events_range(start_date: str, end_date: str, attendance_id: Op
         }
 
         for future in as_completed(futures):
+            url = futures[future]
             try:
                 res = future.result()
             except Exception as exc:
-                if not device_filter_id:
-                    raise
-
-                url = futures[future]
-                print(
-                    "[WARN] Device-side employee filter failed for "
-                    f"{url}. Retrying full fetch and filtering locally. Error: {exc}"
-                )
-                res = fetch_from_single_device(
-                    url,
-                    start_date,
-                    end_date,
-                    attendance_id=device_filter_id,
-                    use_device_filter=False,
-                )
+                if device_filter_id:
+                    print(
+                        "[WARN] Device-side employee filter failed for "
+                        f"{url}. Retrying full fetch and filtering locally. Error: {exc}"
+                    )
+                    try:
+                        res = fetch_from_single_device(
+                            url,
+                            start_date,
+                            end_date,
+                            attendance_id=device_filter_id,
+                            use_device_filter=False,
+                        )
+                    except Exception as retry_exc:
+                        failed_devices.append((url, retry_exc))
+                        print(f"[WARN] Skipping unreachable device {url}. Error: {retry_exc}")
+                        continue
+                else:
+                    failed_devices.append((url, exc))
+                    print(f"[WARN] Skipping unreachable device {url}. Error: {exc}")
+                    continue
             if isinstance(res, list):
                 events.extend(res)
+
+    if failed_devices:
+        print(f"[WARN] Devices skipped: {len(failed_devices)} of {len(DEVICE_URLS)}")
+        if len(failed_devices) == len(DEVICE_URLS):
+            raise Exception("All configured attendance devices failed. No data was synced.")
 
     events = filter_raw_events_by_attendance_id(events, attendance_ids)
     print(f"[INFO] Raw events fetched: {len(events)}")
