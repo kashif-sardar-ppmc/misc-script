@@ -183,22 +183,47 @@ def get_hikvision_events_range(start_date: str, end_date: str, attendance_id: Op
 
 
 # =========================================================
-# 3) Load attendance_id → emp_no mapping
+# 3) Load attendance_id → employees mapping (rehire-aware)
 # =========================================================
 def load_emp_map():
     """
     Returns:
-        dict { attendance_id (str) : emp_no (int) }
+        dict { attendance_id (str) : [(joining_date, emp_no), ...] }
+        sorted by joining date (oldest first). An attendance_id can belong
+        to several employee records when a person is rehired.
     """
     with get_db_cursor() as cur:
         cur.execute("""
-            SELECT emp_no, attendance_id
+            SELECT emp_no, attendance_id, date_of_initial_joining
             FROM employee
             WHERE attendance_id IS NOT NULL
+            ORDER BY attendance_id, date_of_initial_joining NULLS FIRST, emp_no
         """)
         rows = cur.fetchall()
 
-    return {str(att_id): emp_no for (emp_no, att_id) in rows}
+    emp_map = defaultdict(list)
+    for emp_no, att_id, joining_date in rows:
+        emp_map[str(att_id).strip()].append((joining_date or date.min, emp_no))
+    return dict(emp_map)
+
+
+def resolve_emp_no(emp_map, attendance_id_str, day):
+    """
+    Pick the employee record that owned this attendance_id on `day`:
+    the latest record whose joining date is on or before `day`.
+    Falls back to the earliest record if the punch predates every joining date.
+    """
+    candidates = emp_map.get(attendance_id_str)
+    if not candidates:
+        return None
+
+    chosen = candidates[0][1]
+    for joining_date, emp_no in candidates:
+        if joining_date <= day:
+            chosen = emp_no
+        else:
+            break
+    return chosen
 
 
 # =========================================================
@@ -224,15 +249,14 @@ def prepare_attendance_rows(raw_events, emp_map, attendance_id: Optional[str] = 
         if attendance_id_set and emp_id_str not in attendance_id_set:
             continue
 
-        emp_no = emp_map.get(emp_id_str)
-
-        if not emp_no:
-            # attendance_id not mapped in employee table
-            continue
-
         try:
             dt = datetime.fromisoformat(time_str.replace("Z", "+00:00"))
         except Exception:
+            continue
+
+        emp_no = resolve_emp_no(emp_map, emp_id_str, dt.date())
+        if not emp_no:
+            # attendance_id not mapped in employee table
             continue
 
         punches[(emp_no, dt.date(), emp_id_str)].append(dt)
